@@ -2,9 +2,7 @@ package com.luvora.ai.controller;
 
 import com.luvora.ai.dto.project.FileContentResponse;
 import com.luvora.ai.dto.project.FileNode;
-import com.luvora.ai.dto.project.FileTreeResponse;
 import com.luvora.ai.service.FileService;
-import com.luvora.ai.service.ProjectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
