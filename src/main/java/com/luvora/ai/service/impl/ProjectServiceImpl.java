@@ -5,6 +5,8 @@ import com.luvora.ai.dto.project.ProjectResponse;
 import com.luvora.ai.dto.project.ProjectSummaryResponse;
 import com.luvora.ai.entity.Project;
 import com.luvora.ai.entity.User;
+import com.luvora.ai.exception.BadRequestException;
+import com.luvora.ai.exception.ResourceNotFoundException;
 import com.luvora.ai.mapper.ProjectMapper;
 import com.luvora.ai.repository.ProjectRepository;
 import com.luvora.ai.repository.UserRepository;
@@ -44,7 +46,7 @@ public class ProjectServiceImpl implements ProjectService {
     public ProjectResponse createProject(ProjectRequest projectRequest, Long userId) {
 
         User owner = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User", userId.toString()));
 
         Project project = Project.builder()
                 .name(projectRequest.name())
@@ -73,15 +75,24 @@ public class ProjectServiceImpl implements ProjectService {
     public void softDelete(Long id, Long userId) {
 
         Project project = getUserProjectOrThrow(id, userId);
+        if (project.getDeletedAt() != null) {
+            throw new BadRequestException("Project already deleted");
+        }
         project.setDeletedAt(Instant.now());
         projectRepository.save(project);
     }
 
     // 🔥 Centralized method
     private Project getUserProjectOrThrow(Long projectId, Long userId) {
-        return projectRepository
-                .findProjectByIdAndUserId(projectId, userId)
+
+        Project project = projectRepository.findById(projectId)
                 .orElseThrow(() ->
-                        new RuntimeException("Project not found or access denied"));
+                        new ResourceNotFoundException("Project", projectId.toString()));
+
+        if (!project.getOwner().getId().equals(userId)) {
+            throw new BadRequestException("Access denied");
+        }
+
+        return project;
     }
 }
