@@ -5,6 +5,7 @@ import com.luvora.ai.dto.member.MemberResponse;
 import com.luvora.ai.dto.member.UpdateMemberRoleRequest;
 import com.luvora.ai.entity.ProjectMember;
 import com.luvora.ai.service.ProjectMemberService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +29,7 @@ public class ProjectMemberController {
     @PostMapping
     public ResponseEntity<MemberResponse> inviteMember(
             @PathVariable Long projectId,
-            @RequestBody InviteMemberRequest request
+            @Valid @RequestBody InviteMemberRequest request
     ) {
         Long userId = 1L;
         return ResponseEntity.status(HttpStatus.CREATED).body(
@@ -39,7 +40,7 @@ public class ProjectMemberController {
     public ResponseEntity<MemberResponse> updateMemberRole(
             @PathVariable Long projectId,
             @PathVariable Long memberId,
-            @RequestBody UpdateMemberRoleRequest request
+            @Valid @RequestBody UpdateMemberRoleRequest request
     ) {
         Long userId = 1L;
         return ResponseEntity.ok(projectMemberService.updateMemberRole(projectId, memberId, request, userId));
