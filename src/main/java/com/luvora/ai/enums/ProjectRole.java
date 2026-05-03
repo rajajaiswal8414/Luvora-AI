@@ -2,5 +2,6 @@ package com.luvora.ai.enums;
 
 public enum ProjectRole {
     EDITOR,
-    VIEWER
+    VIEWER,
+    OWNER,
 }

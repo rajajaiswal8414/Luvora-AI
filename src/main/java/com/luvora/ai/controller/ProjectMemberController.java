@@ -51,7 +51,7 @@ public class ProjectMemberController {
             @PathVariable Long memberId
     ) {
         Long userId = 1L;
-        return ResponseEntity.ok(projectMemberService.deleteProjectMember(projectId, memberId, userId));
+        return ResponseEntity.ok(projectMemberService.removeProjectMember(projectId, memberId, userId));
     }
 
 }

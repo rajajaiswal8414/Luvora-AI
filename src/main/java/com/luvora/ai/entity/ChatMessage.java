@@ -1,9 +1,10 @@
 package com.luvora.ai.entity;
 
 import com.luvora.ai.enums.MessageRole;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.Instant;
@@ -12,7 +13,10 @@ import java.time.Instant;
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ChatMessage {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
+
     ChatSession chatSession;
     String content;
     MessageRole role;
