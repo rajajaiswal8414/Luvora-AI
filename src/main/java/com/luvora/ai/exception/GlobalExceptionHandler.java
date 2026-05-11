@@ -3,6 +3,8 @@ package com.luvora.ai.exception;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -68,6 +70,52 @@ public class GlobalExceptionHandler {
                 .body(apiError);
     }
 
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public ResponseEntity<ApiError> handleUserAlreadyExistsException(
+            UserAlreadyExistsException e) {
 
+        ApiError apiError = new ApiError(
+                HttpStatus.CONFLICT,
+                e.getMessage()
+        );
+
+        log.error("UserAlreadyExistsException: {}", e.getMessage());
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(apiError);
+    }
+
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<ApiError> handleUsernameNotFoundException(
+            UsernameNotFoundException ex) {
+
+        ApiError apiError = new ApiError(
+                HttpStatus.UNAUTHORIZED,
+                ex.getMessage()
+        );
+
+        log.error("UsernameNotFoundException: {}", ex.getMessage(), ex);
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(apiError);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ApiError> handleBadCredentialsException(
+            BadCredentialsException ex) {
+
+        log.warn("BadCredentialsException: {}", ex.getMessage());
+
+        ApiError apiError = new ApiError(
+                HttpStatus.UNAUTHORIZED,
+                "Invalid credentials"
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(apiError);
+    }
 
 }

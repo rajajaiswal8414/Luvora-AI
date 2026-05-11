@@ -5,8 +5,12 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.Instant;
+import java.util.Collection;
+import java.util.List;
 
 @Getter
 @Setter
@@ -23,16 +27,13 @@ public class User {
     Long id;
 
     @Column(nullable = false, unique = true)
-    String email;
+    String username;
 
     @Column(nullable = false)
-    String passwordHash;
+    String password;
 
     @Column(nullable = false)
     String name;
-
-    @Column(nullable = false)
-    String avatarUrl;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)

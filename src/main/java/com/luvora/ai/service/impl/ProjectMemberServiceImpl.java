@@ -11,6 +11,7 @@ import com.luvora.ai.mapper.ProjectMemberMapper;
 import com.luvora.ai.repository.ProjectMemberRepository;
 import com.luvora.ai.repository.ProjectRepository;
 import com.luvora.ai.repository.UserRepository;
+import com.luvora.ai.security.jwt.JwtUtils;
 import com.luvora.ai.service.ProjectMemberService;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
@@ -32,41 +33,27 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
     ProjectRepository projectRepository;
     ProjectMemberMapper projectMemberMapper;
     UserRepository userRepository;
+    JwtUtils jwtUtils;
 
     @Override
-    public List<MemberResponse> getProjectMembers(Long projectId, Long userId) {
-
+    public List<MemberResponse> getProjectMembers(Long projectId) {
+        Long userId = jwtUtils.getCurrentUserId();
         Project project = getUserProjectOrThrow(projectId, userId);
 
-        List<MemberResponse> memberResponseList = new ArrayList<>();
-
-        // 👑 Add owner
-        memberResponseList.add(
-                projectMemberMapper.toProjectMemberResponseFromOwner(project.getOwner())
-        );
-
         // 👥 Add members
-        List<MemberResponse> members = projectMemberRepository
+        return projectMemberRepository
                 .findByIdProjectId(projectId)
                 .stream()
-                .filter(pm -> !pm.getUser().getId().equals(project.getOwner().getId()))
                 .map(projectMemberMapper::toProjectMemberResponseFromProjectMember)
                 .toList();
-
-        memberResponseList.addAll(members);
-
-        return memberResponseList;
     }
 
     @Override
-    public MemberResponse inviteMember(Long projectId, InviteMemberRequest request, Long userId) {
+    public MemberResponse inviteMember(Long projectId, InviteMemberRequest request) {
+        Long userId = jwtUtils.getCurrentUserId();
         Project project = getUserProjectOrThrow(projectId, userId);
 
-        if(!project.getOwner().getId().equals(userId)){
-            throw new RuntimeException("Not Owner");
-        }
-
-        User invitee = userRepository.findByEmail(request.email()).orElseThrow();
+        User invitee = userRepository.findByUsername(request.username()).orElseThrow();
 
         if(invitee.getId().equals(userId)){
             throw new RuntimeException("Not Invitee");
@@ -93,13 +80,10 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
 
     @Override
     public MemberResponse updateMemberRole(Long projectId, Long memberId,
-                                           UpdateMemberRoleRequest request,
-                                           Long userId) {
+                                           UpdateMemberRoleRequest request) {
+        Long userId = jwtUtils.getCurrentUserId();
         Project project = getUserProjectOrThrow(projectId, userId);
 
-        if(!project.getOwner().getId().equals(userId)){
-            throw new RuntimeException("Not Owner");
-        }
         ProjectMemberId projectMemberId = new ProjectMemberId(projectId, memberId);
 
         ProjectMember projectMember = projectMemberRepository.findById(projectMemberId).orElseThrow();
@@ -110,16 +94,10 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
     }
 
     @Override
-    public MemberResponse removeProjectMember(Long projectId, Long memberId, Long userId) {
+    public MemberResponse removeProjectMember(Long projectId, Long memberId) {
+        Long userId = jwtUtils.getCurrentUserId();
         Project project = getUserProjectOrThrow(projectId, userId);
 
-        if(!project.getOwner().getId().equals(userId)){
-            throw new RuntimeException("Not Owner");
-        }
-
-        if (project.getOwner().getId().equals(memberId)) {
-            throw new RuntimeException("Cannot remove project owner");
-        }
 
         ProjectMemberId projectMemberId = new ProjectMemberId(projectId, memberId);
 

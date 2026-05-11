@@ -3,7 +3,6 @@ package com.luvora.ai.controller;
 import com.luvora.ai.dto.member.InviteMemberRequest;
 import com.luvora.ai.dto.member.MemberResponse;
 import com.luvora.ai.dto.member.UpdateMemberRoleRequest;
-import com.luvora.ai.entity.ProjectMember;
 import com.luvora.ai.service.ProjectMemberService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,8 +21,7 @@ public class ProjectMemberController {
 
     @GetMapping
     private ResponseEntity<List<MemberResponse>> getProjectMembers(@PathVariable Long projectId){
-        Long userId = 1L;
-        return ResponseEntity.ok(projectMemberService.getProjectMembers(projectId, userId));
+        return ResponseEntity.ok(projectMemberService.getProjectMembers(projectId));
     }
 
     @PostMapping
@@ -31,9 +29,8 @@ public class ProjectMemberController {
             @PathVariable Long projectId,
             @Valid @RequestBody InviteMemberRequest request
     ) {
-        Long userId = 1L;
         return ResponseEntity.status(HttpStatus.CREATED).body(
-                projectMemberService.inviteMember(projectId, request, userId));
+                projectMemberService.inviteMember(projectId, request));
     }
 
     @PatchMapping("/{memberId}")
@@ -42,8 +39,7 @@ public class ProjectMemberController {
             @PathVariable Long memberId,
             @Valid @RequestBody UpdateMemberRoleRequest request
     ) {
-        Long userId = 1L;
-        return ResponseEntity.ok(projectMemberService.updateMemberRole(projectId, memberId, request, userId));
+        return ResponseEntity.ok(projectMemberService.updateMemberRole(projectId, memberId, request));
     }
 
     @DeleteMapping("/{memberId}")
@@ -51,8 +47,7 @@ public class ProjectMemberController {
             @PathVariable Long projectId,
             @PathVariable Long memberId
     ) {
-        Long userId = 1L;
-        return ResponseEntity.ok(projectMemberService.removeProjectMember(projectId, memberId, userId));
+        return ResponseEntity.ok(projectMemberService.removeProjectMember(projectId, memberId));
     }
 
 }
