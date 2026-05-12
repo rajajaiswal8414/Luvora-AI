@@ -20,6 +20,7 @@ import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -45,9 +46,10 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public ProjectResponse getUserProjectById(Long id) {
+    @PreAuthorize("@security.canViewProject(#projectId)")
+    public ProjectResponse getUserProjectById(Long projectId) {
         Long  userId = jwtUtils.getCurrentUserId();
-        Project project = getUserProjectOrThrow(id, userId);
+        Project project = getUserProjectOrThrow(projectId, userId);
         return projectMapper.toProjectResponse(project);
     }
 
@@ -83,10 +85,11 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public ProjectResponse updateProject(Long id, ProjectRequest projectRequest) {
+    @PreAuthorize("@security.canEditProject(#projectId")
+    public ProjectResponse updateProject(Long projectId, ProjectRequest projectRequest) {
         Long  userId = jwtUtils.getCurrentUserId();
 
-        Project project = getUserProjectOrThrow(id,  userId);
+        Project project = getUserProjectOrThrow(projectId,  userId);
 
         project.setName(projectRequest.name());
 
@@ -96,9 +99,10 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public void softDelete(Long id) {
+    @PreAuthorize("@security.canDeleteProject(#projectId")
+    public void softDelete(Long projectId) {
         Long userId = jwtUtils.getCurrentUserId();
-        Project project = getUserProjectOrThrow(id, userId);
+        Project project = getUserProjectOrThrow(projectId, userId);
         if (project.getDeletedAt() != null) {
             throw new BadRequestException("Project already deleted");
         }

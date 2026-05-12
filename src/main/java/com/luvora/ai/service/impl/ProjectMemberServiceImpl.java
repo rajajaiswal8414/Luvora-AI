@@ -118,7 +118,7 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
 
     private Project getUserProjectOrThrow(Long projectId, Long userId) {
         return projectRepository
-                .findProjectByIdAndUserId(projectId, userId)
+                .findAccessibleProjectById(projectId, userId)
                 .orElseThrow(() ->
                         new RuntimeException("Project not found or access denied"));
     }
